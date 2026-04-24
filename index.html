@@ -1,18 +1,19 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <title>Magic Particle</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: radial-gradient(circle at center, #0b1a3a, #020611);
-  }
-  canvas {
-    display: block;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #0b1a3a, #020611);
+}
+canvas {
+  display: block;
+}
 </style>
 </head>
 <body>
@@ -32,20 +33,26 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
+// マウス操作
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
+  for (let i = 0; i < 4; i++) createParticle(mouse.x, mouse.y);
+});
 
-  for (let i = 0; i < 4; i++) {
-    createParticle(mouse.x, mouse.y);
-  }
+// タッチ対応（スマホOK）
+window.addEventListener("touchmove", (e) => {
+  const touch = e.touches[0];
+  mouse.x = touch.clientX;
+  mouse.y = touch.clientY;
+  for (let i = 0; i < 6; i++) createParticle(mouse.x, mouse.y);
 });
 
 function createParticle(x, y) {
   const size = Math.random() * 3 + 1;
   const speedX = (Math.random() - 0.5) * 1.5;
   const speedY = (Math.random() - 0.5) * 1.5 - 0.5;
-  const life = Math.random() * 60 + 60; // 約1〜2秒
+  const life = Math.random() * 60 + 60;
 
   particles.push({
     x,
@@ -60,9 +67,6 @@ function createParticle(x, y) {
 }
 
 function drawParticle(p) {
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-
   const gradient = ctx.createRadialGradient(
     p.x, p.y, 0,
     p.x, p.y, p.size * 3
@@ -73,6 +77,8 @@ function drawParticle(p) {
   gradient.addColorStop(1, `rgba(255, 180, 50, 0)`);
 
   ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -86,7 +92,6 @@ function updateParticles() {
     p.life--;
     p.opacity = p.life / p.maxLife;
 
-    // 少し上に浮かぶ感じ
     p.speedY -= 0.01;
 
     if (p.life <= 0) {
@@ -100,7 +105,6 @@ function animate() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   updateParticles();
-
   particles.forEach(drawParticle);
 
   requestAnimationFrame(animate);
@@ -108,5 +112,6 @@ function animate() {
 
 animate();
 </script>
+
 </body>
 </html>
