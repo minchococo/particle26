@@ -9,32 +9,32 @@
             --phone-pink: #f897c4;
             --phone-pink-dark: #e072a4;
             --screen-bg: #e6f7ff;
-            --wall-color: #7f8c8d;
-            --floor-color: #e0f0f5;
+            --wall-color: #7f8c8d; /* 見やすい灰色 */
+            --floor-color: #ffffff; /* 白い床で見やすく */
         }
 
         body {
             background: #10051a;
             color: #333;
-            font-family: 'Courier New', Courier, monospace; /* レトロなフォント */
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            /* キラキラ背景 */
             background-image: 
                 radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            animation: stars 10s linear infinite;
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+            background-size: 550px 550px, 350px 350px;
+            background-position: 0 0, 40px 60px;
+            animation: stars 15s linear infinite;
         }
 
         @keyframes stars {
-            from { background-position: 0 0, 40px 60px, 130px 270px; }
-            to { background-position: 550px 550px, 390px 410px, 380px 520px; }
+            from { background-position: 0 0, 40px 60px; }
+            to { background-position: 550px 550px, 390px 410px; }
         }
 
         /* 端末全体 */
@@ -43,10 +43,7 @@
             height: 700px;
             background: linear-gradient(135deg, var(--phone-pink) 0%, var(--phone-pink-dark) 100%);
             border-radius: 40px;
-            box-shadow: 
-                inset 0 4px 6px rgba(255,255,255,0.5),
-                inset 0 -4px 6px rgba(0,0,0,0.2),
-                10px 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             position: relative;
             padding: 20px;
             display: flex;
@@ -56,41 +53,30 @@
             box-sizing: border-box;
         }
 
-        /* グリッターエフェクト */
-        .device-container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-            opacity: 0.05;
-            border-radius: 40px;
-            pointer-events: none;
-        }
-
         /* 画面エリア */
         .screen-container {
             width: 300px;
             height: 380px;
             background: var(--screen-bg);
             border-radius: 20px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
-            border: 8px solid #f8bad8;
+            border: 6px solid #f8bad8;
             display: flex;
             flex-direction: column;
             padding: 10px;
             box-sizing: border-box;
         }
 
-        /* Notch */
+        /* ノッチ */
         .notch {
-            width: 100px;
-            height: 20px;
+            width: 90px;
+            height: 18px;
             background: #2a0a20;
             border-radius: 0 0 10px 10px;
             position: absolute;
-            top: -8px;
+            top: -6px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
@@ -103,162 +89,152 @@
             color: #d12c7d;
         }
         .title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             margin: 0;
             color: #ff007f;
-            text-shadow: 1px 1px 0px white, -1px -1px 0px white;
+            text-shadow: 1px 1px 0 white;
         }
         .info {
             display: flex;
             justify-content: space-between;
-            font-size: 10px;
-            margin: 2px 0;
+            font-size: 11px;
+            margin: 4px 0;
+            padding: 0 10px;
         }
         .reset-btn {
             background: #d12c7d;
             color: white;
             border: none;
-            border-radius: 5px;
-            padding: 2px 8px;
+            border-radius: 4px;
+            padding: 1px 6px;
             cursor: pointer;
             font-size: 10px;
         }
 
-        /* アイソメトリック迷路エリア */
+        /* 迷路エリア (2Dで見やすく修正) */
         .maze-viewport {
             flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #d9f2ff; /* 少し濃い目の水色でメリハリを */
+            border-radius: 10px;
             position: relative;
-            perspective: 1000px; /* パースペクティブを追加 */
         }
+        
         .maze-grid-container {
-            position: absolute;
-            top: -20px;
-            left: 10%;
-            width: 200px; /* グリッドサイズ */
-            height: 200px;
-            transform: rotateX(60deg) rotateZ(-45deg); /* アイソメトリック変換 */
-            transform-style: preserve-3d;
+            width: 240px; /* 30px * 8 */
+            height: 240px;
+            position: relative;
+            background: var(--floor-color);
+            border: 2px solid #b3e6ff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .tile {
             position: absolute;
-            width: 25px; /* TILE_SIZE */
-            height: 25px;
+            width: 30px; /* TILE_SIZE */
+            height: 30px;
             box-sizing: border-box;
-            background: var(--floor-color);
-            border: 1px solid #ccc;
+            border: 1px solid #f0f0f0;
         }
 
         /* 壁 */
         .wall {
             background: var(--wall-color);
-            transform-style: preserve-3d;
-        }
-        .wall::before, .wall::after {
-            content: '';
-            position: absolute;
-            width: 100%; height: 100%;
-            background: #95a5a6; /* 壁の側面 */
-        }
-        .wall::before { /* 右側面 */
-            transform: rotateY(90deg) translateZ(12.5px);
-            width: 25px;
-        }
-        .wall::after { /* 手前側面 */
-            transform: rotateX(-90deg) translateZ(12.5px);
-            height: 25px;
-            background: #7f8c8d;
+            border-color: #5f6a6b;
         }
 
-        /* ゴール */
-        .goal { background: #2ecc71; border-color: #27ae60; }
+        /* ゴール (旗) */
+        .goal {
+            background-color: #fff; /* 白地 */
+            position: relative;
+        }
+        .goal::after {
+            content: '🚩'; /* 旗の絵文字 */
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+        }
 
         /* ？ボックス */
         .question-box {
             background: #e67e22;
-            border: 2px solid #d35400;
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
             border-radius: 4px;
-            transform-style: preserve-3d;
-            box-shadow: 0 5px 0 #d35400;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
         }
 
         /* ロボットプレイヤー */
         .player {
             position: absolute;
-            width: 20px; height: 20px;
+            width: 24px; height: 24px; /* 30pxに対して少し小さく */
             background: #f39c12;
             border-radius: 50%;
             border: 2px solid white;
-            top: 2.5px; left: 2.5px; /* TILE_SIZEに対して中央に配置 */
+            top: 3px; left: 3px;
             transition: all 0.1s ease;
-            box-shadow: 0 4px 0 #d35400;
-            transform: translateZ(5px); /* 床から少し浮かせる */
+            box-shadow: 0 3px 0 #d35400;
+            z-index: 2;
         }
 
-        /* キーボードエリア */
+        /* キーボードエリア (スッキリ修正) */
         .keyboard {
             width: 320px;
             display: grid;
             grid-template-columns: repeat(10, 1fr);
-            gap: 4px;
+            gap: 5px;
             margin-top: 15px;
+            padding: 0 10px;
         }
         .key {
             background: #fff;
-            border-radius: 5px;
-            height: 25px;
+            border-radius: 6px;
+            height: 30px; /* 少し大きく */
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
+            font-size: 14px;
+            font-weight: bold;
             color: #d12c7d;
             box-shadow: 0 2px 0 #f0bad0;
             cursor: pointer;
             border: 1px solid #f8bad8;
         }
         .key:active { transform: translateY(1px); box-shadow: 0 1px 0 #f0bad0; }
-        .key.wide { grid-column: span 1.5; }
-        .key.space { grid-column: span 5; }
-
-        /* STAYC ロゴ */
-        .logo {
-            color: white;
-            font-size: 12px;
-            margin: 5px 0;
-            opacity: 0.8;
-        }
+        .key.space { grid-column: span 6; grid-column-start: 3; } /* スペースのみ中央に */
 
         /* コントロールボタン (画像右下) */
         .controls {
             width: 100%;
             display: flex;
             justify-content: flex-end;
-            margin-top: 5px;
+            margin-top: 20px; /* 間隔を開ける */
             padding-right: 20px;
         }
         .control-pad {
             display: grid;
-            grid-template-columns: repeat(3, 40px);
-            gap: 5px;
+            grid-template-columns: repeat(3, 42px);
+            gap: 6px;
         }
         .d-btn {
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.3);
+            width: 42px; height: 42px;
+            background: rgba(255,255,255,0.4);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.5);
+            border: 2px solid rgba(255,255,255,0.6);
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
         .d-btn:active { transform: translateY(1px); box-shadow: 0 3px 0 rgba(0,0,0,0.1); }
@@ -290,17 +266,13 @@
         </div>
     </div>
     
-    <div class="logo">STAYC</div>
-
     <div class="keyboard">
         <div class="key">Q</div><div class="key">W</div><div class="key">E</div><div class="key">R</div><div class="key">T</div>
         <div class="key">Y</div><div class="key">U</div><div class="key">I</div><div class="key">O</div><div class="key">P</div>
         <div class="key">A</div><div class="key">S</div><div class="key">D</div><div class="key">F</div><div class="key">G</div>
-        <div class="key">H</div><div class="key">J</div><div class="key">K</div><div class="key">L</div><div class="key">DEL</div>
-        <div class="key wide">CAPS</div><div class="key">Z</div><div class="key">X</div><div class="key">C</div><div class="key">V</div>
-        <div class="key">B</div><div class="key">N</div><div class="key">M</div><div class="key wide">ENTER</div>
-        <div class="key wide">?123</div><div class="key space">SPACE</div><div class="key wide">.com</div>
-    </div>
+        <div class="key">H</div><div class="key">J</div><div class="key">K</div><div class="key">L</div><div class="key">M</div>
+        <div class="key">Z</div><div class="key">X</div><div class="key">C</div><div class="key">V</div><div class="key">B</div>
+        <div class="key">N</div> <div class="key space">SPACE</div> </div>
 
     <div class="controls">
         <div class="control-pad">
@@ -313,16 +285,16 @@
 </div>
 
 <script>
-    const TILE_SIZE = 25;
+    const TILE_SIZE = 30; // 2Dで見やすくするために大きく
     const GRID_SIZE = 8;
     const mazeGrid = document.getElementById('mazeGrid');
 
-    // 画像の迷路を再現 (0:通路, 1:壁, 2:ゴール, 3:？ボックス)
+    // 迷路データ (0:通路, 1:壁, 2:ゴール, 3:？ボックス)
     const originalMaze = [
         [1,1,1,1,1,1,1,1],
-        [1,0,0,0,1,0,2,1], // 画像に合わせてゴールを配置
+        [1,0,0,0,1,0,2,1],
         [1,0,1,0,1,0,1,1],
-        [1,0,1,3,0,0,0,1], // ？ボックス
+        [1,0,1,3,0,0,0,1],
         [1,0,1,1,1,1,0,1],
         [1,0,0,0,0,1,0,1],
         [1,0,1,1,0,0,0,1],
@@ -347,15 +319,12 @@
 
                 if (maze[y][x] === 1) {
                     tile.classList.add('wall');
-                    // アイソメトリック壁の高さを出すためのZ軸移動
-                    tile.style.transform = `translateZ(${TILE_SIZE/2}px)`; 
                 } else if (maze[y][x] === 2) {
                     tile.classList.add('goal');
                 } else if (maze[y][x] === 3) {
                     tile.classList.add('question-box');
                     tile.id = 'qBox';
                     tile.innerText = '?';
-                    tile.style.transform = `translateZ(${TILE_SIZE/4}px)`; // 少し浮かせる
                 }
                 mazeGrid.appendChild(tile);
             }
@@ -371,8 +340,9 @@
 
     function updatePlayerPosition() {
         const playerEl = document.getElementById('player');
-        playerEl.style.left = `${player.x * TILE_SIZE + 2.5}px`;
-        playerEl.style.top = `${player.y * TILE_SIZE + 2.5}px`;
+        // タイルの中央に配置するための微調整 (3pxは(TILE_SIZE - PlayerSize)/2)
+        playerEl.style.left = `${player.x * TILE_SIZE + 3}px`;
+        playerEl.style.top = `${player.y * TILE_SIZE + 3}px`;
     }
 
     function move(dir) {
@@ -391,16 +361,17 @@
 
             // ゴール判定
             if (maze[player.y][player.x] === 2) {
-                alert("STAGE CLEAR!");
-                resetGame();
+                setTimeout(() => {
+                    alert("STAGE CLEAR!");
+                    resetGame();
+                }, 100); // 移動アニメーションを待つ
             }
             
-            // ？ボックス判定 (画像通り、踏むと消える)
+            // ？ボックス判定 (踏むと消える)
             if (maze[player.y][player.x] === 3) {
                 maze[player.y][player.x] = 0; // データ上で通路にする
                 const qBox = document.getElementById('qBox');
                 if (qBox) qBox.style.display = 'none'; // 画面から消す
-                // (元の仕様の「操作シャッフル」をここに入れることも可能)
             }
         }
     }
@@ -422,7 +393,7 @@
         startTimer();
     }
 
-    // キーボード操作にも対応
+    // PCの矢印キーにも対応
     window.addEventListener('keydown', (e) => {
         if (e.key === "ArrowUp") move('up');
         if (e.key === "ArrowDown") move('down');
@@ -436,4 +407,3 @@
 
 </body>
 </html>
-
