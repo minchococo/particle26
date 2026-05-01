@@ -1,117 +1,152 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Magic Particle</title>
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: radial-gradient(circle at center, #0b1a3a, #020611);
-}
-canvas {
-  display: block;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVERSE MAZE!</title>
+    <style>
+        body { background: #1a1a2e; color: white; font-family: 'Arial', sans-serif; text-align: center; margin: 0; overflow: hidden; }
+        canvas { background: #333; border: 4px solid #555; border-radius: 8px; margin-top: 10px; max-width: 95vw; }
+        .ui-panel { margin: 10px; font-size: 1.2rem; display: flex; justify-content: space-around; }
+        .controls { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; justify-content: center; margin-top: 20px; }
+        .btn { width: 60px; height: 60px; background: #4e5d6c; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border-bottom: 4px solid #2c3e50; }
+        .btn:active { transform: translateY(2px); border-bottom: none; }
+        .hint { font-size: 10px; color: #ffcc00; }
+        #msg { color: #ff0055; font-weight: bold; height: 24px; }
+    </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
+
+    <h2>REVERSE MAZE!</h2>
+    <div class="ui-panel">
+        <div>TIME: <span id="timer">00:00</span></div>
+        <div id="msg"></div>
+    </div>
+
+    <canvas id="gameCanvas" width="320" height="320"></canvas>
+
+    <!-- 操作ボタンと現在のマッピング表示 -->
+    <div class="controls">
+        <div></div>
+        <div class="btn" onclick="move('up')">↑<div id="hint-up" class="hint">?</div></div>
+        <div></div>
+        <div class="btn" onclick="move('left')">←<div id="hint-left" class="hint">?</div></div>
+        <div class="btn" onclick="shuffleMapping()" style="background:#e67e22">🔄</div>
+        <div class="btn" onclick="move('right')">→<div id="hint-right" class="hint">?</div></div>
+        <div></div>
+        <div class="btn" onclick="move('down')">↓<div id="hint-down" class="hint">?</div></div>
+        <div></div>
+    </div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const TILE_SIZE = 40;
+    const GRID_SIZE = 8;
 
-let particles = [];
-let mouse = { x: 0, y: 0 };
+    // 0: 通路, 1: 壁, 2: ゴール, 3: シャッフルマス(?)
+    const maze = [
+        [1,1,1,1,1,1,1,1],
+        [1,0,0,0,1,0,2,1],
+        [1,0,1,0,1,0,1,1],
+        [1,0,1,3,0,0,0,1],
+        [1,0,1,1,1,1,0,1],
+        [1,0,0,0,0,1,0,1],
+        [1,0,1,1,0,0,0,1],
+        [1,1,1,1,1,1,1,1]
+    ];
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resize);
-resize();
+    let player = { x: 1, y: 5 };
+    let mapping = { up: 'up', down: 'down', left: 'left', right: 'right' };
+    let startTime = Date.now();
 
-// マウス操作
-window.addEventListener("mousemove", (e) => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-  for (let i = 0; i < 4; i++) createParticle(mouse.x, mouse.y);
-});
-
-// タッチ対応（スマホOK）
-window.addEventListener("touchmove", (e) => {
-  const touch = e.touches[0];
-  mouse.x = touch.clientX;
-  mouse.y = touch.clientY;
-  for (let i = 0; i < 6; i++) createParticle(mouse.x, mouse.y);
-});
-
-function createParticle(x, y) {
-  const size = Math.random() * 3 + 1;
-  const speedX = (Math.random() - 0.5) * 1.5;
-  const speedY = (Math.random() - 0.5) * 1.5 - 0.5;
-  const life = Math.random() * 60 + 60;
-
-  particles.push({
-    x,
-    y,
-    size,
-    speedX,
-    speedY,
-    life,
-    maxLife: life,
-    opacity: 1
-  });
-}
-
-function drawParticle(p) {
-  const gradient = ctx.createRadialGradient(
-    p.x, p.y, 0,
-    p.x, p.y, p.size * 3
-  );
-
-  gradient.addColorStop(0, `rgba(255, 215, 100, ${p.opacity})`);
-  gradient.addColorStop(0.5, `rgba(255, 200, 80, ${p.opacity * 0.6})`);
-  gradient.addColorStop(1, `rgba(255, 180, 50, 0)`);
-
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function updateParticles() {
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-
-    p.x += p.speedX;
-    p.y += p.speedY;
-
-    p.life--;
-    p.opacity = p.life / p.maxLife;
-
-    p.speedY -= 0.01;
-
-    if (p.life <= 0) {
-      particles.splice(i, 1);
+    function shuffleMapping() {
+        const directions = ['up', 'down', 'left', 'right'];
+        const shuffled = [...directions].sort(() => Math.random() - 0.5);
+        mapping = {
+            up: shuffled[0],
+            down: shuffled[1],
+            left: shuffled[2],
+            right: shuffled[3]
+        };
+        updateHintUI();
+        document.getElementById('msg').innerText = "MAPPING CHANGED!";
+        setTimeout(() => document.getElementById('msg').innerText = "", 2000);
     }
-  }
-}
 
-function animate() {
-  ctx.fillStyle = "rgba(2, 6, 17, 0.3)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function updateHintUI() {
+        const arrowMap = { up: '↑', down: '↓', left: '←', right: '→' };
+        document.getElementById('hint-up').innerText = arrowMap[mapping.up];
+        document.getElementById('hint-down').innerText = arrowMap[mapping.down];
+        document.getElementById('hint-left').innerText = arrowMap[mapping.left];
+        document.getElementById('hint-right').innerText = arrowMap[mapping.right];
+    }
 
-  updateParticles();
-  particles.forEach(drawParticle);
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for(let y=0; y<GRID_SIZE; y++) {
+            for(let x=0; x<GRID_SIZE; x++) {
+                if(maze[y][x] === 1) ctx.fillStyle = '#555';
+                else if(maze[y][x] === 2) ctx.fillStyle = '#2ecc71'; // Goal
+                else if(maze[y][x] === 3) ctx.fillStyle = '#f1c40f'; // ? Block
+                else ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE-2, TILE_SIZE-2);
+                
+                if(maze[y][x] === 3) {
+                    ctx.fillStyle = "white";
+                    ctx.fillText("?", x*TILE_SIZE+15, y*TILE_SIZE+25);
+                }
+            }
+        }
+        // Player (Robot)
+        ctx.fillStyle = '#e67e22';
+        ctx.beginPath();
+        ctx.arc(player.x*TILE_SIZE + TILE_SIZE/2, player.y*TILE_SIZE + TILE_SIZE/2, TILE_SIZE/3, 0, Math.PI*2);
+        ctx.fill();
 
-  requestAnimationFrame(animate);
-}
+        // Timer
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `${m}:${s}`;
+        requestAnimationFrame(draw);
+    }
 
-animate();
+    function move(inputDir) {
+        const actualDir = mapping[inputDir];
+        let nextX = player.x;
+        let nextY = player.y;
+
+        if(actualDir === 'up') nextY--;
+        if(actualDir === 'down') nextY++;
+        if(actualDir === 'left') nextX--;
+        if(actualDir === 'right') nextX++;
+
+        if(maze[nextY][nextX] !== 1) {
+            player.x = nextX;
+            player.y = nextY;
+            
+            if(maze[nextY][nextX] === 2) {
+                alert("GOAL! おめでとうございます！");
+                location.reload();
+            }
+            if(maze[nextY][nextX] === 3) {
+                maze[nextY][nextX] = 0; // 一度踏むと消える
+                shuffleMapping();
+            }
+        }
+    }
+
+    // キーボード操作にも対応
+    window.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowUp") move('up');
+        if(e.key === "ArrowDown") move('down');
+        if(e.key === "ArrowLeft") move('left');
+        if(e.key === "ArrowRight") move('right');
+    });
+
+    shuffleMapping();
+    draw();
 </script>
-
 </body>
 </html>
